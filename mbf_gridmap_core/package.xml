@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>mbf_gridmap_core</name>
+  <version>0.1.0</version>
+  <description>
+        This package provides common interfaces for navigation specific robot actions. Similarly to the mbf_costmap_core, it contains the GridMapPlanner, GridMapController and GridMapRecovery interfaces. The interfaces have to be implemented by the plugins to make them available for Move Base Flex using the mbf_gridmap_nav navigation implementation. That implementation inherits the mbf_abstract_nav implementation and binds the system to a local and a global costmap.
+  </description>
+  <url>http://wiki.ros.org/move_base_flex/mbf_gridmap_core</url>
+
+  <maintainer email="karan.n.1992@gmail.com">Karan Narula</maintainer>
+  <author email="karan.n.1992@gmail.com">Karan Narula</author>
+  <license>BSD-3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>grid_map_core</depend>
+  <depend>mbf_abstract_core</depend>
+  <depend>mbf_utility</depend>
+
+</package>
