@@ -55,4 +55,4 @@ protected:
 };
 }  // namespace mbf_gridmap_core
 
-#endif // MBF_GRIDMAP_CORE__GRIDMAP_RECOVERY_H_
+#endif  // MBF_GRIDMAP_CORE__GRIDMAP_RECOVERY_H_
