@@ -75,7 +75,7 @@ public:
   /**
    * @brief Constructs the local planner
    * @param name The name to give this instance of the local planner
-   * @param tf A pointer to a transform listener
+   * @param tf_ptr A pointer to a transform listener
    * @param local_gridmap_ptr A pointer to the local costmap (gridmap) to use for assigning and inferring costs to local
    * plans
    * @param global_gridmap_ptr A pointer to the global costmap (gridmap) to use for assigning and inferring costs to
@@ -83,7 +83,8 @@ public:
    * @param gridmap_mtx_ptr A pointer to mutex object to protect simultaneous access to the shared local and global
    * gridmaps
    */
-  virtual void initialize(std::string name, const ::TF* tf, const ::mbf_gridmap_core::GridmapSPtr& local_gridmap_ptr,
+  virtual void initialize(std::string name, const TFPtr& tf_ptr,
+                          const ::mbf_gridmap_core::GridmapSPtr& local_gridmap_ptr,
                           const ::mbf_gridmap_core::GridmapSPtr& global_gridmap_ptr,
                           const std::shared_ptr<std::mutex>& gridmap_mtx_ptr) = 0;
 

@@ -20,13 +20,14 @@ public:
 
   /**
    * @brief Initialization function for the GridMapRecovery
-   * @param tf A pointer to a transform listener
+   * @param tf_ptr A pointer to a transform listener
    * @param local_gridmap_ptr A pointer to the local costmap (gridmap) used by the navigation stack
    * @param global_gridmap_ptr A pointer to the global costmap (gridmap) used by the navigation stack
    * @param gridmap_mtx_ptr A pointer to mutex object to protect simultaneous access to the shared local and global
    * gridmaps
    */
-  virtual void initialize(std::string name, const ::TF* tf, const ::mbf_gridmap_core::GridmapSPtr& local_gridmap_ptr,
+  virtual void initialize(std::string name, const TFPtr& tf_ptr,
+                          const ::mbf_gridmap_core::GridmapSPtr& local_gridmap_ptr,
                           const ::mbf_gridmap_core::GridmapSPtr& global_gridmap_ptr,
                           const std::shared_ptr<std::mutex>& gridmap_mtx_ptr) = 0;
 
