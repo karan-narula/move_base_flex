@@ -26,7 +26,7 @@ public:
    * @param gridmap_mtx_ptr A shared pointer to mutex object to protect simultaneous access to the shared local and
    * global gridmaps
    */
-  virtual void initialize(std::string name, const TFPtr& tf_ptr,
+  virtual void initialize(const std::string &name, const TFPtr& tf_ptr,
                           const ::mbf_gridmap_core::GridmapSPtr& local_gridmap_ptr,
                           const ::mbf_gridmap_core::GridmapSPtr& global_gridmap_ptr,
                           const std::shared_ptr<std::mutex>& gridmap_mtx_ptr) = 0;
