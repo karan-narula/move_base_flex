@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="mbf_gridmap_nav" type="mbf_gridmap_nav" name="nav_server" output="screen">
+    <rosparam command="load" file="$(find mbf_gridmap_nav)/cfg/example_config.yaml" />
+  </node>
+</launch>
+

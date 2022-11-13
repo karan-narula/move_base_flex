@@ -1,0 +1,22 @@
+local_gridmap:
+  frame: odom
+  length: 20.0
+  width: 20.0
+  resolution: 0.1
+  obstacle_threshold: 100
+  basic_gridmap_layers:
+    - "obstacle"
+    - "aggregate"
+  other_gridmap_layers:
+    - "dynamic"
+    - "blah"
+
+global_gridmap:
+  frame: odom
+  obstacle_threshold: 100
+  basic_gridmap_layers:
+    - "obstacle"
+    - "aggregate"
+  other_gridmap_layers:
+    - "dynamic"
+    - "blah"
