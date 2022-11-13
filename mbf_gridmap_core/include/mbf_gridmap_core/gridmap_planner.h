@@ -1,7 +1,7 @@
 #ifndef MBF_GRIDMAP_CORE__GRIDMAP_PLANNER_H_
 #define MBF_GRIDMAP_CORE__GRIDMAP_PLANNER_H_
 
-#include "gridmap_types.h"
+#include "mbf_gridmap_core/gridmap_types.h"
 #include <mbf_abstract_core/abstract_controller.h>
 #include <mbf_utility/types.h>
 #include <mutex>
