@@ -16,7 +16,7 @@ namespace mbf_gridmap_core
 class GridMapController : public mbf_abstract_core::AbstractController
 {
 public:
-  boost::shared_ptr<GridMapController> Ptr;
+  typedef boost::shared_ptr<GridMapController> Ptr;
 
   /**
    * @brief Given the current position, orientation, and velocity of the robot, compute velocity commands
