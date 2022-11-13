@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>mbf_gridmap_nav</name>
+  <version>0.1.0</version>
+  <description>
+        The mbf_gridmap_nav package contains the gridmap navigation server implementation of Move Base Flex (MBF). The gridmap navigation server is bound to the <a href="http://wiki.ros.org/grid_map">grid_map</a> representation. Similarly to the mbf_costmap_nav package, it provides the Actions for planning, controlling and recovering. At the time of start MBF loads all defined plugins. Therefore, it loads all plugins which are defined in the lists *planners*, *controllers* and *recovery_behaviors*. Each list holds a pair of a *name* and a *type*. The *type* defines which kind of plugin to load. The *name* defines under which name the plugin should be callable by the actions.
+  </description>
+  <url>http://wiki.ros.org/move_base_flex/mbf_gridmap_nav</url>
+
+  <maintainer email="karan.n.1992@gmail.com">Karan Narula</maintainer>
+  <author email="karan.n.1992@gmail.com">Karan Narula</author>
+  <license>BSD-3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>mbf_abstract_nav</depend>
+  <depend>mbf_gridmap_core</depend>
+  <depend>mbf_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>pluginlib</depend>
+  <depend>roscpp</depend>
+
+</package>
