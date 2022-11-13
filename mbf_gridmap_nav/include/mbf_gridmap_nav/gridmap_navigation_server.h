@@ -124,7 +124,7 @@ private:
    * @param response Empty response object.
    * @return true, if the service completed successfully, false otherwise
    */
-  bool callServiceClearCostmaps(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+  bool callServiceClearGridmaps(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
   pluginlib::ClassLoader<mbf_gridmap_core::GridMapRecovery> recovery_plugin_loader_;
   // pluginlib::ClassLoader<nav_core::RecoveryBehavior> nav_core_recovery_plugin_loader_;

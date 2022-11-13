@@ -79,7 +79,7 @@ GridMapNavigationServer::GridMapNavigationServer(const TFPtr& tf_listener_ptr)
   check_path_cost_srv_ =
       private_nh_.advertiseService("check_path_cost", &GridMapNavigationServer::callServiceCheckPathCost, this);
   clear_gridmaps_srv_ =
-      private_nh_.advertiseService("clear_costmaps", &GridMapNavigationServer::callServiceClearCostmaps, this);
+      private_nh_.advertiseService("clear_costmaps", &GridMapNavigationServer::callServiceClearGridmaps, this);
 
   // initialize all plugins
   initializeServerComponents();
@@ -266,7 +266,7 @@ bool GridMapNavigationServer::callServiceCheckPathCost(mbf_msgs::CheckPath::Requ
   // TODO
 }
 
-bool GridMapNavigationServer::callServiceClearCostmaps(std_srvs::Empty::Request& request,
+bool GridMapNavigationServer::callServiceClearGridmaps(std_srvs::Empty::Request& request,
                                                        std_srvs::Empty::Response& response)
 {
   // TODO
