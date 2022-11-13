@@ -269,6 +269,19 @@ bool GridMapNavigationServer::callServiceCheckPathCost(mbf_msgs::CheckPath::Requ
 bool GridMapNavigationServer::callServiceClearGridmaps(std_srvs::Empty::Request& request,
                                                        std_srvs::Empty::Response& response)
 {
-  // TODO
+  // iterate through all the layers of the costmaps and flush the cost to zero
+  std::lock_guard<std::mutex> guard(*gridmap_mtx_ptr_);
+  for (const std::string& layer_name : local_gridmap_ptr_->getLayers())
+  {
+    grid_map::Matrix& data = local_gridmap_ptr_->get(layer_name);
+    data.setConstant(0.0);
+  }
+  for (const std::string& layer_name : global_gridmap_ptr_->getLayers())
+  {
+    grid_map::Matrix& data = global_gridmap_ptr_->get(layer_name);
+    data.setConstant(0.0);
+  }
+
+  return true;
 }
 }  // namespace mbf_gridmap_nav
