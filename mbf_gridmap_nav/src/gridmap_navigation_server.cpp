@@ -63,7 +63,8 @@ GridMapNavigationServer::GridMapNavigationServer(const TFPtr& tf_listener_ptr)
   , planner_plugin_loader_("mbf_gridmap_core", "mbf_gridmap_core::GridMapPlanner")
   , local_gridmap_ptr_(new mbf_gridmap_core::Gridmap())
   , global_gridmap_ptr_(new mbf_gridmap_core::Gridmap())
-  , gridmap_mtx_ptr_(new std::mutex())
+  , local_gridmap_mtx_ptr_(new std::mutex())
+  , global_gridmap_mtx_ptr_(new std::mutex())
 {
   // read relevant parmeters from the parameter server and set frame id, and geometry of the local and global gridmap
   // independently NOTE: the geometry of global gridmap can be decided during global routing to encompass the expected
@@ -137,13 +138,20 @@ bool GridMapNavigationServer::initializePlannerPlugin(const std::string& name,
     return false;
   }
 
-  if (!gridmap_mtx_ptr_)
+  if (!local_gridmap_mtx_ptr_)
   {
-    ROS_FATAL_STREAM("The gridmap mutex pointer has not been initialized!");
+    ROS_FATAL_STREAM("The local gridmap mutex pointer has not been initialized!");
     return false;
   }
 
-  gridmap_planner_ptr->initialize(name, tf_listener_ptr_, local_gridmap_ptr_, global_gridmap_ptr_, gridmap_mtx_ptr_);
+  if (!global_gridmap_mtx_ptr_)
+  {
+    ROS_FATAL_STREAM("The global gridmap mutex pointer has not been initialized!");
+    return false;
+  }
+
+  gridmap_planner_ptr->initialize(name, tf_listener_ptr_, local_gridmap_ptr_, global_gridmap_ptr_,
+                                  local_gridmap_mtx_ptr_, global_gridmap_mtx_ptr_);
   ROS_DEBUG_STREAM("Planner plugin \"" << name << "\" initialized.");
 
   return true;
@@ -187,13 +195,20 @@ bool GridMapNavigationServer::initializeControllerPlugin(
     return false;
   }
 
-  if (!gridmap_mtx_ptr_)
+  if (!local_gridmap_mtx_ptr_)
   {
-    ROS_FATAL_STREAM("The gridmap mutex pointer has not been initialized!");
+    ROS_FATAL_STREAM("The local gridmap mutex pointer has not been initialized!");
     return false;
   }
 
-  gridmap_controller_ptr->initialize(name, tf_listener_ptr_, local_gridmap_ptr_, global_gridmap_ptr_, gridmap_mtx_ptr_);
+  if (!global_gridmap_mtx_ptr_)
+  {
+    ROS_FATAL_STREAM("The global gridmap mutex pointer has not been initialized!");
+    return false;
+  }
+
+  gridmap_controller_ptr->initialize(name, tf_listener_ptr_, local_gridmap_ptr_, global_gridmap_ptr_,
+                                     local_gridmap_mtx_ptr_, global_gridmap_mtx_ptr_);
   ROS_DEBUG_STREAM("Controller plugin \"" << name << "\" initialized.");
 
   return true;
@@ -236,13 +251,20 @@ bool GridMapNavigationServer::initializeRecoveryPlugin(const std::string& name,
     return false;
   }
 
-  if (!gridmap_mtx_ptr_)
+  if (!local_gridmap_mtx_ptr_)
   {
-    ROS_FATAL_STREAM("The gridmap mutex pointer has not been initialized!");
+    ROS_FATAL_STREAM("The local gridmap mutex pointer has not been initialized!");
     return false;
   }
 
-  recovery_behavior_ptr->initialize(name, tf_listener_ptr_, local_gridmap_ptr_, global_gridmap_ptr_, gridmap_mtx_ptr_);
+  if (!global_gridmap_mtx_ptr_)
+  {
+    ROS_FATAL_STREAM("The global gridmap mutex pointer has not been initialized!");
+    return false;
+  }
+
+  recovery_behavior_ptr->initialize(name, tf_listener_ptr_, local_gridmap_ptr_, global_gridmap_ptr_,
+                                    local_gridmap_mtx_ptr_, global_gridmap_mtx_ptr_);
   ROS_DEBUG_STREAM("Recovery behavior plugin \"" << name << "\" initialized.");
 
   return true;
@@ -270,12 +292,13 @@ bool GridMapNavigationServer::callServiceClearGridmaps(std_srvs::Empty::Request&
                                                        std_srvs::Empty::Response& response)
 {
   // iterate through all the layers of the costmaps and flush the cost to zero
-  std::lock_guard<std::mutex> guard(*gridmap_mtx_ptr_);
+  std::lock_guard<std::mutex> local_guard(*local_gridmap_mtx_ptr_);
   for (const std::string& layer_name : local_gridmap_ptr_->getLayers())
   {
     grid_map::Matrix& data = local_gridmap_ptr_->get(layer_name);
     data.setConstant(0.0);
   }
+  std::lock_guard<std::mutex> global_guard(*global_gridmap_mtx_ptr_);
   for (const std::string& layer_name : global_gridmap_ptr_->getLayers())
   {
     grid_map::Matrix& data = global_gridmap_ptr_->get(layer_name);

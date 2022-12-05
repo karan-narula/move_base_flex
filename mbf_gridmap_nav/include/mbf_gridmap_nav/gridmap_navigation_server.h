@@ -139,8 +139,10 @@ private:
   //! Shared pointer to the common global gridmap
   const mbf_gridmap_core::GridmapSPtr global_gridmap_ptr_;
 
-  // Shared pointer to a mutex object for locking both local and global gridmaps
-  const std::shared_ptr<std::mutex> gridmap_mtx_ptr_;
+  // Shared pointer to a mutex object for locking local gridmap
+  const std::shared_ptr<std::mutex> local_gridmap_mtx_ptr_;
+  // Shared pointer to a mutex object for locking global gridmap
+  const std::shared_ptr<std::mutex> global_gridmap_mtx_ptr_;
 
   // obstacle threshold cost for local and global gridmaps
   double local_obstacle_threshold_, global_obstacle_threshold_;
