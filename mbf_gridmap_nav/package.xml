@@ -16,6 +16,9 @@
   <depend>mbf_abstract_nav</depend>
   <depend>mbf_gridmap_core</depend>
   <depend>mbf_msgs</depend>
+  <depend>grid_map_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>grid_map_ros</depend>
   <depend>std_srvs</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>

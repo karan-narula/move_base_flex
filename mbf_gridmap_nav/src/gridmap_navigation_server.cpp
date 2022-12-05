@@ -1,5 +1,9 @@
 #include "mbf_gridmap_nav/gridmap_navigation_server.h"
 
+#include <grid_map_ros/grid_map_ros.hpp>
+#include <grid_map_msgs/GridMap.h>
+#include <nav_msgs/OccupancyGrid.h>
+
 #include <xmlrpcpp/XmlRpc.h>
 #include <limits>
 
@@ -56,6 +60,28 @@ void setUpGridMap(const std::string& loc_glob_field, const ros::NodeHandle& nh, 
   readGridMapLayers(layer_field, nh, other_layers, gridmap);
 }
 
+ros::Rate setUpGridMapPublisher(const std::string& loc_glob_field, ros::NodeHandle& nh,
+                                const mbf_gridmap_core::GridmapSPtr& gridmap_ptr, ros::Publisher& gridmap_pub,
+                                std::map<std::string, ros::Publisher>& occupancy_grid_pub)
+{
+  // read the user-specified rate for publishing the gridmap
+  int rate;
+  nh.param<int>(loc_glob_field + "/publish_rate", rate, 1);
+
+  // initialise the gridmap publisher
+  gridmap_pub = nh.advertise<grid_map_msgs::GridMap>(loc_glob_field + "/grid_map", 10, true);
+
+  // initialise the occupancy grid publisher
+  for (const std::string& layer_name : gridmap_ptr->getLayers())
+  {
+    std::string topic_name(loc_glob_field + "/og_" + layer_name + "_layer");
+    occupancy_grid_pub[layer_name] = nh.advertise<nav_msgs::OccupancyGrid>(topic_name, 1, true);
+  }
+
+  // initialise timer to publish the gridmap at specified frequency
+  return ros::Rate(rate);
+}
+
 GridMapNavigationServer::GridMapNavigationServer(const TFPtr& tf_listener_ptr)
   : AbstractNavigationServer(tf_listener_ptr)
   , recovery_plugin_loader_("mbf_gridmap_core", "mbf_gridmap_core::GridMapRecovery")
@@ -71,6 +97,14 @@ GridMapNavigationServer::GridMapNavigationServer(const TFPtr& tf_listener_ptr)
   // area of operation
   setUpGridMap("local_gridmap", private_nh_, *local_gridmap_ptr_, local_obstacle_threshold_);
   setUpGridMap("global_gridmap", private_nh_, *global_gridmap_ptr_, global_obstacle_threshold_);
+
+  // read relevant parameters from the parameter server and set up gridmap publishers
+  ros::Rate r1 = setUpGridMapPublisher("local_gridmap", private_nh_, local_gridmap_ptr_, local_gridmap_pub_,
+                                       local_occupancy_grid_pub_);
+  local_gridmap_pub_timer_ = private_nh_.createTimer(r1, &GridMapNavigationServer::publishLocalGridmap, this);
+  ros::Rate r2 = setUpGridMapPublisher("global_gridmap", private_nh_, global_gridmap_ptr_, global_gridmap_pub_,
+                                       global_occupancy_grid_pub_);
+  global_gridmap_pub_timer_ = private_nh_.createTimer(r2, &GridMapNavigationServer::publishGlobalGridmap, this);
 
   // advertise services and current goal topic
   check_point_cost_srv_ =
@@ -268,6 +302,47 @@ bool GridMapNavigationServer::initializeRecoveryPlugin(const std::string& name,
   ROS_DEBUG_STREAM("Recovery behavior plugin \"" << name << "\" initialized.");
 
   return true;
+}
+
+void GridMapNavigationServer::publishLocalGridmap(const ros::TimerEvent& ev)
+{
+  std::lock_guard<std::mutex> guard(*local_gridmap_mtx_ptr_);
+  publishGridMap("local_gridmap", local_gridmap_ptr_, local_gridmap_pub_, local_occupancy_grid_pub_,
+                 local_obstacle_threshold_);
+}
+
+void GridMapNavigationServer::publishGlobalGridmap(const ros::TimerEvent& ev)
+{
+  std::lock_guard<std::mutex> guard(*global_gridmap_mtx_ptr_);
+  publishGridMap("global_gridmap", global_gridmap_ptr_, global_gridmap_pub_, global_occupancy_grid_pub_,
+                 global_obstacle_threshold_);
+}
+
+void GridMapNavigationServer::publishGridMap(const std::string& loc_glob_field,
+                                             const mbf_gridmap_core::GridmapSPtr& gridmap_ptr,
+                                             const ros::Publisher& gridmap_pub,
+                                             std::map<std::string, ros::Publisher>& occupancy_grid_pub,
+                                             double& obstacle_threshold)
+{
+  // publish the gridmap
+  grid_map_msgs::GridMap message;
+  grid_map::GridMapRosConverter::toMessage(*gridmap_ptr, message);
+  gridmap_pub.publish(message);
+
+  // publish each layer of gridmap as an occupancy grid
+  for (const std::string& layer_name : gridmap_ptr->getLayers())
+  {
+    if (!occupancy_grid_pub.count(layer_name))
+    {
+      ROS_INFO_STREAM("Detected new layer: " << layer_name << " for " << loc_glob_field
+                                             << " and adding occupancy grid for it");
+      std::string topic_name(loc_glob_field + "/og_" + layer_name + "_layer");
+      occupancy_grid_pub[layer_name] = private_nh_.advertise<nav_msgs::OccupancyGrid>(topic_name, 1, true);
+    }
+    nav_msgs::OccupancyGrid occupancyGrid;
+    grid_map::GridMapRosConverter::toOccupancyGrid(*gridmap_ptr, layer_name, 0, obstacle_threshold, occupancyGrid);
+    occupancy_grid_pub[layer_name].publish(occupancyGrid);
+  }
 }
 
 bool GridMapNavigationServer::callServiceCheckPointCost(mbf_msgs::CheckPoint::Request& request,

@@ -16,6 +16,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <mutex>
+#include <map>
 #include <string>
 
 namespace mbf_gridmap_nav
@@ -95,6 +96,30 @@ private:
                                         const mbf_abstract_core::AbstractRecovery::Ptr& behavior_ptr);
 
   /**
+   * @brief Callback method that publishes local gridmap
+   * @param timer event
+   */
+  void publishLocalGridmap(const ros::TimerEvent& ev);
+
+  /**
+   * @brief Callback method that publishes global gridmap
+   * @param timer event
+   */
+  void publishGlobalGridmap(const ros::TimerEvent& ev);
+
+  /**
+   * @brief Callback method that publishes local or global gridmaps
+   * @param Namespace for the gridmap (whether it's local or global)
+   * @param Reference to gridmap pointer
+   * @param Reference to publisher of gridmap
+   * @param Reference to publisher of occupancy grid version of gridmap
+   * @param Reference to obstacle threhold for the gridmap used for scaling the occupancy grid
+   */
+  void publishGridMap(const std::string& loc_glob_field, const mbf_gridmap_core::GridmapSPtr& gridmap_ptr,
+                      const ros::Publisher& gridmap_pub, std::map<std::string, ros::Publisher>& occupancy_grid_pub,
+                      double& obstacle_threshold);
+
+  /**
    * @brief Callback method for the check_point_cost service
    * @param request Request object, see the mbf_msgs/CheckPoint service definition file.
    * @param response Response object, see the mbf_msgs/CheckPoint service definition file.
@@ -146,6 +171,13 @@ private:
 
   // obstacle threshold cost for local and global gridmaps
   double local_obstacle_threshold_, global_obstacle_threshold_;
+
+  // publisher of local and global gridmaps
+  ros::Publisher local_gridmap_pub_, global_gridmap_pub_;
+  ros::Timer local_gridmap_pub_timer_, global_gridmap_pub_timer_;
+
+  // publisher of occupancy grid version of local and global gridmaps
+  std::map<std::string, ros::Publisher> local_occupancy_grid_pub_, global_occupancy_grid_pub_;
 
   //! Service Server for the check_point_cost service
   ros::ServiceServer check_point_cost_srv_;

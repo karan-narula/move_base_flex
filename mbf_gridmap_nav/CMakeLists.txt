@@ -5,6 +5,9 @@ find_package(catkin REQUIRED COMPONENTS
   mbf_abstract_nav
   mbf_gridmap_core
   mbf_msgs
+  grid_map_msgs
+  nav_msgs
+  grid_map_ros
   std_srvs
   pluginlib
   roscpp
@@ -22,6 +25,9 @@ catkin_package(
     mbf_abstract_nav
     mbf_gridmap_core
     mbf_msgs
+    grid_map_msgs
+    nav_msgs
+    grid_map_ros
     std_srvs
     pluginlib
     roscpp
